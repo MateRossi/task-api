@@ -3,6 +3,10 @@ package com.example.task.api.controller;
 import com.example.task.api.dto.UsuarioDto;
 import com.example.task.model.entity.Usuario;
 import com.example.task.service.UsuarioService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -16,17 +20,29 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/usuarios")
 @RequiredArgsConstructor
+@CrossOrigin
+@Api(tags="User requests")
 public class UsuarioController {
 
     private final UsuarioService service;
 
     @GetMapping()
+    @ApiOperation("Get all tasks")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Users found"),
+            @ApiResponse(code = 404, message = "Users not found")
+    })
     public ResponseEntity get(){
         List<Usuario> usuarios = service.getUsuario();
         return ResponseEntity.ok(usuarios.stream().map(UsuarioDto::create).collect(Collectors.toList()));
     }
 
     @GetMapping("/{id}")
+    @ApiOperation("Get task by id")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "User found"),
+            @ApiResponse(code = 404, message = "User not found")
+    })
     public ResponseEntity get(@PathVariable("id") Long id) {
         Optional<Usuario> usuario = service.getUsuarioById(id);
 
@@ -38,6 +54,11 @@ public class UsuarioController {
     }
 
     @PostMapping()
+    @ApiOperation("Post task")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "User sucessfully saved"),
+            @ApiResponse(code = 404, message = "Error saving user")
+    })
     public ResponseEntity post(@RequestBody UsuarioDto dto){
         try {
             Usuario usuario = converter(dto);
@@ -49,6 +70,11 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}")
+    @ApiOperation("Put task")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "User updated sucessfully"),
+            @ApiResponse(code = 404, message = "Error updating user")
+    })
     public ResponseEntity put(@PathVariable("id") Long id, @RequestBody UsuarioDto dto){
         if(!service.getUsuarioById(id).isPresent()){
             return new ResponseEntity("Usuario not found", HttpStatus.NOT_FOUND);
@@ -64,6 +90,11 @@ public class UsuarioController {
     }
 
     @DeleteMapping("/{id}")
+    @ApiOperation("Delete task")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "User deleted sucessfully"),
+            @ApiResponse(code = 404, message = "Error deleting user")
+    })
     public ResponseEntity delete(@PathVariable("id") Long id){
         Optional<Usuario> usuario = service.getUsuarioById(id);
         if(!usuario.isPresent()){
