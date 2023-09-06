@@ -13,7 +13,7 @@ import java.util.Optional;
 @Service
 public class UsuarioService {
 
-    private final UsuarioRepository repository;
+    private UsuarioRepository repository;
 
     public UsuarioService(UsuarioRepository repository) {
         this.repository = repository;
