@@ -1,7 +1,10 @@
 package com.example.task.api.controller;
 
+import com.example.task.api.dto.TaskDto;
 import com.example.task.api.dto.UsuarioDto;
+import com.example.task.model.entity.Task;
 import com.example.task.model.entity.Usuario;
+import com.example.task.service.TaskService;
 import com.example.task.service.UsuarioService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -25,9 +28,10 @@ import java.util.stream.Collectors;
 public class UsuarioController {
 
     private final UsuarioService service;
+    private final TaskService taskService;
 
     @GetMapping()
-    @ApiOperation("Get all tasks")
+    @ApiOperation("Get all users")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Users found"),
             @ApiResponse(code = 404, message = "Users not found")
@@ -38,7 +42,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
-    @ApiOperation("Get task by id")
+    @ApiOperation("Get user by id")
     @ApiResponses({
             @ApiResponse(code = 200, message = "User found"),
             @ApiResponse(code = 404, message = "User not found")
@@ -53,8 +57,25 @@ public class UsuarioController {
         return ResponseEntity.ok(usuario.map(UsuarioDto::create));
     }
 
+    @GetMapping("/{id}/tasks")
+    @ApiOperation("Get user tasks by userId")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "User tasks found"),
+            @ApiResponse(code = 404, message = "User tasks not found")
+    })
+    public ResponseEntity getUserTasks(@PathVariable("id") Long id){
+        Optional<Usuario> usuario = service.getUsuarioById(id);
+        if(!usuario.isPresent()){
+            return new ResponseEntity("Usuário not found!", HttpStatus.NOT_FOUND);
+        }
+
+        List<Task> tasks = taskService.getTaskByUserId(usuario.get().getId());
+
+        return ResponseEntity.ok(tasks.stream().map(TaskDto::create).collect(Collectors.toList()));
+    }
+
     @PostMapping()
-    @ApiOperation("Post task")
+    @ApiOperation("Post user")
     @ApiResponses({
             @ApiResponse(code = 200, message = "User sucessfully saved"),
             @ApiResponse(code = 404, message = "Error saving user")
@@ -70,7 +91,7 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}")
-    @ApiOperation("Put task")
+    @ApiOperation("Put user")
     @ApiResponses({
             @ApiResponse(code = 200, message = "User updated sucessfully"),
             @ApiResponse(code = 404, message = "Error updating user")
@@ -90,7 +111,7 @@ public class UsuarioController {
     }
 
     @DeleteMapping("/{id}")
-    @ApiOperation("Delete task")
+    @ApiOperation("Delete user")
     @ApiResponses({
             @ApiResponse(code = 200, message = "User deleted sucessfully"),
             @ApiResponse(code = 404, message = "Error deleting user")

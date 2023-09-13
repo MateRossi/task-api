@@ -31,4 +31,6 @@ public class TaskService {
         Objects.requireNonNull(task.getId());
         repository.delete(task);
     }
+
+    public List<Task> getTaskByUserId(Long id){ return repository.getAllByUsuarioId(id); }
 }
